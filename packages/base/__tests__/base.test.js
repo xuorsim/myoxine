@@ -3,5 +3,5 @@
 const base = require('..');
 
 describe('@myoxine/base', () => {
-    it('needs tests');
+  it('needs tests');
 });

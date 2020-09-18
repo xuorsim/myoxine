@@ -1,22 +1,24 @@
 {
-  "name": "@myoxine/base",
-  "version": "1.0.1-alpha.0",
+  "name": "@myoxine/react",
+  "version": "1.0.0",
   "description": "> TODO: description",
   "author": "Hadi Halim <hdi_hlim@yahoo.com>",
-  "homepage": "",
+  "homepage": "https://github.com/myoxine/myoxine#readme",
   "license": "MIT",
-  "main": "lib/doctor.js",
-  "typings": "lib/doctor.d.ts",
-  "files": [
-    "**/*"
-  ],
-  "publishConfig": {
-    "access": "public",
-    "directory": "./lib"
-  },
+  "main": "lib/react.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.yarnpkg.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/myoxine/myoxine.git"
   },
   "scripts": {
     "precommit": "npm run prettier && lint-staged",
@@ -24,6 +26,12 @@
     "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "lint": "eslint --fix -f codeframe \"**/*.js\"",
     "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/myoxine/myoxine/issues"
+  },
+  "dependencies": {
+    "@myoxine/base": "^1.0.1-alpha.0"
   },
   "devDependencies": {
     "eslint": "^7.9.0",

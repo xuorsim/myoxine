@@ -1,5 +1,5 @@
 export class Doctor {
-    get(id) {
-        return {};
-    }
+get(id) {
+return {};
+}
 }
