@@ -1,0 +1,19 @@
+{
+  "name": "myoxine",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "lerna run test --stream --parallel",
+    "publish": "lerna run tsc && lerna publish --contents lib"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@types/node": "^14.11.1",
+    "lerna": "^3.22.1",
+    "typescript": "^4.0.2"
+  }
+}
