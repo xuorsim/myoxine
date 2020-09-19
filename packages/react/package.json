@@ -21,11 +21,14 @@
     "url": "git+https://github.com/myoxine/myoxine.git"
   },
   "scripts": {
-    "precommit": "npm run prettier && lint-staged",
-    "run": "tsc -w",
+    "precommit": "lint-staged",
+    "clean": "rm -r ./lib",
+    "start": "tsc -w",
     "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "lint": "eslint --fix -f codeframe \"**/*.js\"",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "lint": "eslint --fix -f codeframe \"**/*.js\" --ext ts --ext tsx",
+    "test": "mocha -r ts-node/register ./__tests__/*.test.ts",
+    "test:js": "mocha __tests__/**/*.test.js",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
   },
   "bugs": {
     "url": "https://github.com/myoxine/myoxine/issues"
@@ -34,7 +37,19 @@
     "@myoxine/base": "^1.0.1-alpha.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "awesome-typescript-loader": "^5.2.1",
+    "chai": "^4.2.0",
     "eslint": "^7.9.0",
-    "prettier": "^2.1.2"
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "lint-staged": "^10.4.0",
+    "mocha": "^8.1.3",
+    "nyc": "^15.1.0",
+    "prettier": "^2.1.2",
+    "ts-node": "^9.0.0"
   }
 }

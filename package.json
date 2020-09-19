@@ -6,10 +6,10 @@
   "private": true,
   "scripts": {
     "test": "lerna run test --stream --parallel",
-    "lint": "lerna run lint --parallel",
+    "lint": "lerna run prettier && lerna run lint --parallel",
     "bootstrap": "lerna bootstrap",    
     "setup": "npm install && npm run bootstrap",
-    "start": "lerna run start --parallel",    
+    "start": "lerna run clean && lerna run start --parallel",    
     "publish": "lerna run tsc && lerna publish --contents lib"
   },
   "workspaces": [
