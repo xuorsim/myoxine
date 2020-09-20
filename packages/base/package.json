@@ -21,6 +21,7 @@
   "scripts": {
     "precommit": "lint-staged",
     "start": "tsc -w",
+    "tsc": "tsc",
     "clean": "rm -r ./lib",
     "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "lint": "eslint --fix -f codeframe \"**/*.js\" --ext ts --ext tsx",
