@@ -25,7 +25,7 @@
     "clean": "rm -r ./lib",
     "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "lint": "eslint --fix -f codeframe \"**/*.js\" --ext ts --ext tsx",
-    "test": "mocha -r ts-node/register ./__tests__/**/*.test.ts",
+    "test": "mocha -r ts-node/register  ./__tests__/**/*.test.ts",
     "test:js": "mocha  ./__tests__/*.test.js",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
   },

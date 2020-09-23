@@ -1,0 +1,10 @@
+node_modules/
+lerna-debug.log
+npm-debug.log
+packages/*/lib
+packages/*/coverage
+packages/*/.nyc_output
+.idea
+*.log
+*-lock*
+*.lock*

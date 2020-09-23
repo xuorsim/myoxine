@@ -1,10 +1,11 @@
 import { expect } from 'chai';
 import { it } from 'mocha';
 import { MagicalObject } from './../lib/MagicalObject';
+
+/*
 describe('test with simple declaration', function () {
     class testMagicalObject extends MagicalObject {
-        test = undefined;
-        static testStatic: string | undefined = undefined;
+        public test?: string;
         runTest(msg): string {
             return msg;
         }
@@ -40,6 +41,41 @@ describe('test with simple declaration', function () {
         expect(obj.runTest('its work')).equal('its work');
     });
 });
+//*/
+///*
+describe('test setter and getter property', function () {
+    class testMagicalObject extends MagicalObject {
+        public test = 'value test';
+        public noValue?: string;
+    }
+    const obj = new testMagicalObject();
+    it('should correct for valid get', function () {
+        expect(obj.test).equal('value test');
+        console.log(obj.noValue);
+    });
+    it('should error for get undeclared property', function () {
+        try {
+            process.exit();
+
+            //obj.test2;
+        } catch (error) {
+            expect(error.name).equal('Exception');
+        }
+    });
+    it('should correct for valid set', function () {
+        obj.test = 'changed value test';
+        expect(obj.test).equal('changed value test');
+    });
+    it('should error for set undeclared property', function () {
+        try {
+            //obj.test2 = 'error changed value test';
+        } catch (error) {
+            expect(error.name).equal('Exception');
+        }
+    });
+});
+
+//*/
 /*
 describe('test with invalid getter', function () {
     class testMagicalObject extends MagicalObject {

@@ -1,0 +1,23 @@
+{
+    "folders": [
+      {
+        "name": "ROOT",
+        "path": "."
+      },
+      {
+        "path": "packages/base"
+      },
+      {
+        "path": "packages/react"
+      },
+      {
+        "path": "../../yii/myoxinephp"
+      }
+    ],
+    "settings": {
+      "files.exclude": {
+        "**/node_modules/**": true,
+        "packages/*/*": true
+      }
+    }
+}
