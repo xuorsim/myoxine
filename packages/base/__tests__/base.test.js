@@ -37,7 +37,6 @@ describe('no extended class', function () {
             expect(obj.test2).equal('new value test2');
         });
     });
-
     describe('test isset property', function () {
         class testMagicalObject extends MagicalObject {
             test = 'value test';
@@ -87,6 +86,131 @@ describe('no extended class', function () {
             delete obj.test2;
             expect('test2' in obj).equal(false);
             expect(obj.hasOwnProperty('test2')).equal(false);
+        });
+    });
+});
+describe('With extended class', function () {
+    describe('test setter and getter property', function () {
+        class testMagicalObject extends MagicalObject {
+            test = 'value test';
+            noValue;
+            __get(props) {
+                var val = super.__get(props);
+                return val + '2';
+            }
+            __set(props, value) {
+                return super.__set(props, value + '3');
+            }
+        }
+        const obj = new testMagicalObject();
+        it('should correct for valid get', function () {
+            expect(obj.test).equal('value test2');
+        });
+        it('should correct for valid get undefined variable', function () {
+            expect(obj.noValue).equal('undefined2');
+        });
+        it('should error for get undeclared property', function () {
+            try {
+                obj.test2;
+            } catch (error) {
+                //console.log(error.message);
+                expect(error.name).equal('Exception');
+                expect(error.message).equal('Undefined property: testMagicalObject.test2');
+            }
+        });
+        it('should correct for valid set', function () {
+            obj.test = 'changed value test';
+            expect(obj.test).equal('changed value test32');
+        });
+        it('should correct for valid set undefined', function () {
+            obj.noValue = 'changed value defined';
+            expect(obj.noValue).equal('changed value defined32');
+        });
+        it('should allow to set undeclared property', function () {
+            obj.test2 = 'new value test';
+            expect(obj.test2).equal('new value test32');
+        });
+    });
+    describe('test isset property', function () {
+        class testMagicalObject extends MagicalObject {
+            test = 'value test';
+            noValue;
+            __isset(prop) {
+                return !super.__isset(prop);
+            }
+        }
+        const obj = new testMagicalObject();
+        describe('test with "in"', function () {
+            it('should true for variable has value"', function () {
+                expect('test' in obj).equal(false);
+            });
+            it('should true for variable has no value"', function () {
+                expect('noValue' in obj).equal(false);
+            });
+            it('should false for undeclared variable', function () {
+                expect('justtest' in obj).equal(true);
+            });
+        });
+        describe('test with "hasOwnProperty"', function () {
+            it('should can variable has value ', function () {
+                expect(obj.hasOwnProperty('test')).equal(false);
+            });
+            it('should true for variable has not value"', function () {
+                expect(obj.hasOwnProperty('noValue')).equal(false);
+            });
+            it('should false for undeclared variable"', function () {
+                expect(obj.hasOwnProperty('justtest')).equal(true);
+            });
+        });
+    });
+    describe('test unset property', function () {
+        class testMagicalObject extends MagicalObject {
+            test = 'value test';
+            noValue;
+            __unset(prop) {
+                this['new_' + prop] = this[prop];
+                return super.__unset(prop);
+            }
+        }
+        const obj = new testMagicalObject();
+        it('should can delete variable has value ', function () {
+            delete obj.test;
+            expect('test' in obj).equal(false);
+            expect(obj.hasOwnProperty('test')).equal(false);
+            expect(obj.new_test).equal('value test');
+            try {
+                obj.test;
+            } catch (error) {
+                //console.log(error.message);
+                expect(error.name).equal('Exception');
+                expect(error.message).equal('Undefined property: testMagicalObject.test');
+            }
+        });
+        it('should can delete variable has not value ', function () {
+            delete obj.noValue;
+            expect('noValue' in obj).equal(false);
+            expect(obj.hasOwnProperty('noValue')).equal(false);
+            expect(obj.new_noValue).equal(undefined);
+            try {
+                obj.noValue;
+            } catch (error) {
+                //console.log(error.message);
+                expect(error.name).equal('Exception');
+                expect(error.message).equal('Undefined property: testMagicalObject.noValue');
+            }
+        });
+        it('should can delete undeclared variable ', function () {
+            delete obj.test2;
+            expect('test2' in obj).equal(false);
+            expect(obj.hasOwnProperty('test2')).equal(false);
+            expect(obj.new_test2).equal(undefined);
+            try {
+                obj.test2;
+            } catch (error) {
+                //console.log(error.message);
+                expect(error.name).equal('Exception');
+                expect(error.message).equal('Undefined property: testMagicalObject.test2');
+            }
         });
     });
 });

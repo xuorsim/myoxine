@@ -56,21 +56,28 @@ class MagicalObjectClass {
         }
         */
         return new Proxy(this, {
-            get: (obj: any, prop: PropertyKey): any => {
+            get: (obj: any, prop: PropertyKey, receiver?: any): any => {
                 if (prop === 'hasOwnProperty' && obj[prop] != undefined && typeof obj[prop] == 'function') {
                     return function (...args) {
                         return obj.__isset(args);
                     };
                 } else if (obj[prop] != undefined && typeof obj[prop] == 'function') {
                     // Wrap it around a function and return it
-                    return function (...args) {
-                        return obj.__call.bind(obj)(prop, args);
-                    };
+                    if (prop.toString() === '__get') {
+                        return function (...args) {
+                            return obj.__get.bind(obj)(args);
+                        };
+                    } else {
+                        return function (...args) {
+                            return obj.__call.bind(obj)(prop, args);
+                        };
+                    }
                 } else {
                     if (!obj.hasOwnProperty(prop)) {
                         throw new Exception('Undefined property: ' + obj.constructor.name + '.' + (prop as string));
                     }
-                    return obj.__get(prop);
+
+                    return obj.__get(prop, receiver);
                 }
             },
             set: (obj: any, prop: PropertyKey, value: any): boolean => {
