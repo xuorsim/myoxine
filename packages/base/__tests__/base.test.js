@@ -1,13 +1,30 @@
 const { expect } = require('chai');
+const { Console } = require('console');
 const { get } = require('http');
 const { it } = require('mocha');
 const { MagicalObject, MyClass } = require('./../lib/MagicalObject');
+///*
 describe('no extended class', function () {
-    describe('test setter and getter property', function () {
-        class testMagicalObject extends MagicalObject {
+    describe('constructor set property', function () {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             test = 'value test';
             noValue;
-        }
+            constructor(value) {
+                super();
+                this.noValue = value;
+            }
+        }.withProxy();
+        //testMagicalObject = testMagicalObject.proxyStatic();
+        obj = new testMagicalObject('no value');
+        console.log(obj);
+        expect(obj.noValue).equal('no value');
+    });
+
+    describe('test setter and getter property', function () {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
+            test = 'value test';
+            noValue;
+        }.withProxy();
         const obj = new testMagicalObject();
         it('should correct for valid get', function () {
             expect(obj.test).equal('value test');
@@ -38,10 +55,10 @@ describe('no extended class', function () {
         });
     });
     describe('test isset property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             test = 'value test';
             noValue;
-        }
+        }.withProxy();
         const obj = new testMagicalObject();
         describe('test with "in"', function () {
             it('should true for variable has value"', function () {
@@ -67,10 +84,10 @@ describe('no extended class', function () {
         });
     });
     describe('test unset property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             test = 'value test';
             noValue;
-        }
+        }.withProxy();
         const obj = new testMagicalObject();
         it('should can delete variable has value ', function () {
             delete obj.test;
@@ -91,9 +108,13 @@ describe('no extended class', function () {
 });
 describe('With extended class', function () {
     describe('test setter and getter property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             test = 'value test';
             noValue;
+            constructor() {
+                return super();
+            }
+
             __get(props) {
                 var val = super.__get(props);
                 return val + '2';
@@ -101,7 +122,7 @@ describe('With extended class', function () {
             __set(props, value) {
                 return super.__set(props, value + '3');
             }
-        }
+        }.withProxy();
         const obj = new testMagicalObject();
         it('should correct for valid get', function () {
             expect(obj.test).equal('value test2');
@@ -132,13 +153,13 @@ describe('With extended class', function () {
         });
     });
     describe('test isset property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             test = 'value test';
             noValue;
             __isset(prop) {
                 return !super.__isset(prop);
             }
-        }
+        }.withProxy();
         const obj = new testMagicalObject();
         describe('test with "in"', function () {
             it('should true for variable has value"', function () {
@@ -164,14 +185,14 @@ describe('With extended class', function () {
         });
     });
     describe('test unset property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             test = 'value test';
             noValue;
             __unset(prop) {
                 this['new_' + prop] = this[prop];
                 return super.__unset(prop);
             }
-        }
+        }.withProxy();
         const obj = new testMagicalObject();
         it('should can delete variable has value ', function () {
             delete obj.test;
@@ -217,11 +238,10 @@ describe('With extended class', function () {
 
 describe('static module no extended class', function () {
     describe('test setter and getter property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             static test = 'value test';
             static noValue;
-        }
-        testMagicalObject = testMagicalObject.proxyStatic();
+        }.withProxy();
         it('should error trying trap __invoke', function () {
             try {
                 testMagicalObject('test');
@@ -266,11 +286,10 @@ describe('static module no extended class', function () {
         });
     });
     describe('test isset property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             static test = 'value test';
             static noValue;
-        }
-        testMagicalObject = testMagicalObject.proxyStatic();
+        }.withProxy();
         describe('test with "in"', function () {
             it('should true for variable has value"', function () {
                 expect('test' in testMagicalObject).equal(true);
@@ -295,11 +314,10 @@ describe('static module no extended class', function () {
         });
     });
     describe('test unset property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             static test = 'value test';
             static noValue;
-        }
-        testMagicalObject = testMagicalObject.proxyStatic();
+        }.withProxy();
         it('should can delete variable has value ', function () {
             delete testMagicalObject.test;
             expect('test' in testMagicalObject).equal(false);
@@ -319,7 +337,7 @@ describe('static module no extended class', function () {
 });
 describe('static module With extended class', function () {
     describe('test setter and getter property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             static test = 'value test';
             static noValue;
             static __get(props) {
@@ -332,8 +350,7 @@ describe('static module With extended class', function () {
             static __invoke(...args) {
                 return args;
             }
-        }
-        testMagicalObject = testMagicalObject.proxyStatic();
+        }.withProxy();
         it('should valid trying trap __invoke', function () {
             const results = testMagicalObject('test', 'test2');
             expect(results.length).equal(2);
@@ -375,14 +392,13 @@ describe('static module With extended class', function () {
         });
     });
     describe('test isset property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             static test = 'value test';
             static noValue;
             static __isset(prop) {
                 return !super.__isset(prop);
             }
-        }
-        testMagicalObject = testMagicalObject.proxyStatic();
+        }.withProxy();
         describe('test with "in"', function () {
             it('should true for variable has value"', function () {
                 expect('test' in testMagicalObject).equal(false);
@@ -407,15 +423,14 @@ describe('static module With extended class', function () {
         });
     });
     describe('test unset property', function () {
-        class testMagicalObject extends MagicalObject {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {
             static test = 'value test';
             static noValue;
             static __unset(prop) {
                 this['new_' + prop] = this[prop];
                 return super.__unset(prop);
             }
-        }
-        testMagicalObject = testMagicalObject.proxyStatic();
+        }.withProxy();
         it('should can delete variable has value ', function () {
             delete testMagicalObject.test;
             expect('test' in testMagicalObject).equal(false);
@@ -457,3 +472,4 @@ describe('static module With extended class', function () {
         });
     });
 });
+//*/
