@@ -1,7 +1,14 @@
-export class Exception extends Error {
+export default class Exception extends Error {
+    _name = 'Exception';
+    _message;
     constructor(message: string) {
-        super(message); // (1)
-        this.name = 'Exception'; // (2)
+        super(message);
+        this._message = message;
     }
+    getName = (): string => {
+        return this._name;
+    };
+    getMessage = (): string => {
+        return this._message;
+    };
 }
-export default Exception;

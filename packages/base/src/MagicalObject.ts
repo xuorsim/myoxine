@@ -25,9 +25,10 @@ additional magic method
 */
 
 export type MagicalObjectProp = string | number | symbol;
-export class MagicalObject {
+export default class MagicalObject {
     static withProxy(): void {
         const proxied = new Proxy(this, {
+            /*
             construct(target, args) {
                 return new Proxy(new target(...args), {
                     get: (obj: any, prop: PropertyKey, receiver?: any): any => {
@@ -74,7 +75,7 @@ export class MagicalObject {
                         return obj.__unset(prop);
                     },
                 });
-            },
+            },*/
             apply: function (obj: any, thisArg: any, argumentsList: any): any {
                 if (!obj.hasOwnProperty('__invoke') || typeof obj['__invoke'] !== 'function') {
                     throw new Exception('Undefined static property: ' + obj.name + '.' + '__invoke');
@@ -98,16 +99,20 @@ export class MagicalObject {
                         };
                     }
                 } else {
-                    if (!obj.hasOwnProperty(prop)) {
-                        throw new Exception('Undefined static property: ' + obj.name + '.' + (prop as string));
+                    if (typeof prop !== 'symbol' && !obj.hasOwnProperty(prop)) {
+                        throw new Exception(
+                            'Undefined static property: ' + obj.prototype.constructor.name + '.' + (prop as string),
+                        );
                     }
 
                     return obj.__get(prop, receiver);
                 }
             },
             set: (obj: any, prop: PropertyKey, value: any, receiver: any): boolean => {
-                if (!receiver.hasOwnProperty(prop)) {
-                    throw new Exception('Undefined static property: ' + obj.name + '.' + (prop as string));
+                if (typeof prop !== 'symbol' && !receiver.hasOwnProperty(prop)) {
+                    throw new Exception(
+                        'Undefined static property: ' + obj.prototype.constructor.name + '.' + (prop as string),
+                    );
                 }
                 return obj.__set(prop, value);
             },
@@ -158,7 +163,7 @@ export class MagicalObject {
         return this.constructor.name;
     }
     static __toString(): string {
-        return this.constructor.name;
+        return this.prototype.constructor.name;
     }
     __call(prop: PropertyKey, args: Array<any>): any {
         return this[prop](...args);
@@ -166,7 +171,7 @@ export class MagicalObject {
     static __call(prop: PropertyKey, args: Array<any>): any {
         return this[prop](...args);
     }
-    /*
+    ///*
     constructor(...args: any) {
         const proxy = new Proxy(this, {
             get: (obj: any, prop: PropertyKey, receiver?: any): any => {
@@ -213,5 +218,5 @@ export class MagicalObject {
         });
         return proxy;
     }
-    */
+    //*/
 }
