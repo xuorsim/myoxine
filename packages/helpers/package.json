@@ -23,7 +23,7 @@
     "start": "tsc -w",
     "tsc": "tsc",
     "clean": "rm -r ./lib",
-    "prettier": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "prettier": "prettier --config .prettierrc  --write \"src/**/*.ts\"",
     "lint": "eslint --fix --ext ts --ext tsx",
     "test": "mocha -r ts-node/register  ./__tests__/**/*.test.ts",
     "test:js": "mocha  ./__tests__/*.test.js",

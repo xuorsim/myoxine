@@ -5,13 +5,16 @@
         "path": "."
       },
       {
+        "path": "packages/helpers"
+      },
+      {
         "path": "packages/base"
       },
       {
         "path": "packages/react"
       },
       {
-        "path": "../../yii/myoxinephp"
+        "path": "../../php/myoxinephp"
       }
     ],
     "settings": {
