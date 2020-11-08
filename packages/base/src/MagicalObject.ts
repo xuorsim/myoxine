@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Exception from './Exception';
+import method_exist from './method_exists';
 /*
 PHP magic method
 // __construct()**, 
@@ -28,66 +29,21 @@ export type MagicalObjectProp = string | number | symbol;
 export default class MagicalObject {
     static withProxy(): void {
         const proxied = new Proxy(this, {
-            /*
-            construct(target, args) {
-                return new Proxy(new target(...args), {
-                    get: (obj: any, prop: PropertyKey, receiver?: any): any => {
-                        if (prop === 'hasOwnProperty' && obj[prop] !== undefined && typeof obj[prop] === 'function') {
-                            return function (...args) {
-                                return obj.__isset(args);
-                            };
-                        } else if (obj[prop] != undefined && typeof obj[prop] == 'function') {
-                            // Wrap it around a function and return it
-                            if (prop.toString() === '__get') {
-                                return function (...args) {
-                                    return obj.__get.bind(obj)(args);
-                                };
-                            } else {
-                                return function (...args) {
-                                    return obj.__call.bind(obj)(prop, args);
-                                };
-                            }
-                        } else {
-                            if (!obj.hasOwnProperty(prop)) {
-                                throw new Exception(
-                                    'Undefined property: ' + obj.constructor.name + '.' + (prop as string),
-                                );
-                            }
-
-                            return obj.__get(prop, receiver);
-                        }
-                    },
-                    set: (obj: any, prop: PropertyKey, value: any): boolean => {
-                        if (!obj.hasOwnProperty(prop)) {
-                            Object.defineProperty(obj, prop, { writable: true });
-                        }
-                        if (obj.__set(prop, value)) {
-                            return true;
-                        } else {
-                            obj.deleteProperty(obj, prop);
-                            return false;
-                        }
-                    },
-                    has: (obj: any, prop: PropertyKey): boolean => {
-                        return obj.__isset(prop);
-                    },
-                    deleteProperty: (obj: any, prop: PropertyKey): boolean => {
-                        return obj.__unset(prop);
-                    },
-                });
-            },*/
             apply: function (obj: any, thisArg: any, argumentsList: any): any {
-                if (!obj.hasOwnProperty('__invoke') || typeof obj['__invoke'] !== 'function') {
+                if (!method_exist(obj, '__invoke')) {
                     throw new Exception('Undefined static property: ' + obj.name + '.' + '__invoke');
                 }
                 return obj.__invoke(...argumentsList);
             },
             get: (obj: any, prop: PropertyKey, receiver?: any): any => {
-                if (prop === 'hasOwnProperty' && obj[prop] != undefined && typeof obj[prop] === 'function') {
+                if (prop === 'hasOwnProperty' && method_exist(obj, 'hasOwnProperty')) {
                     return function (...args) {
-                        return obj.__isset(args);
+                        if (method_exist(obj, '__isset')) {
+                            return obj.__isset(args);
+                        }
+                        return obj.hasOwnProperty(args);
                     };
-                } else if (obj[prop] != undefined && typeof obj[prop] == 'function') {
+                } else if (method_exist(obj, prop as string)) {
                     // Wrap it around a function and return it
                     if (prop.toString() === '__get') {
                         return function (...args) {
@@ -95,91 +51,62 @@ export default class MagicalObject {
                         };
                     } else {
                         return function (...args) {
-                            return obj.__call.bind(obj)(prop, args);
+                            if (method_exist(obj, '__call')) {
+                                return obj.__call.bind(obj)(prop, args);
+                            }
+                            return obj[prop].bind(obj)(...args);
+                            //return obj.__call.bind(obj)(prop, args);
                         };
                     }
                 } else {
-                    if (typeof prop !== 'symbol' && !obj.hasOwnProperty(prop)) {
-                        throw new Exception(
-                            'Undefined static property: ' + obj.prototype.constructor.name + '.' + (prop as string),
-                        );
+                    if (method_exist(obj, '__get')) {
+                        return obj.__get(prop, receiver);
+                    } else {
+                        if (!obj.hasOwnProperty(prop)) {
+                            throw new Exception('Undefined static property: ' + obj.name + '.' + (prop as string));
+                        }
+                        return Reflect.get(obj, prop);
                     }
-
-                    return obj.__get(prop, receiver);
+                    return Reflect.get(obj, prop);
                 }
             },
             set: (obj: any, prop: PropertyKey, value: any, receiver: any): boolean => {
                 if (typeof prop !== 'symbol' && !receiver.hasOwnProperty(prop)) {
-                    throw new Exception(
-                        'Undefined static property: ' + obj.prototype.constructor.name + '.' + (prop as string),
-                    );
+                    throw new Exception('Undefined static property: ' + obj.name + '.' + (prop as string));
                 }
-                return obj.__set(prop, value);
+                if (method_exist(obj, '__set')) {
+                    return obj.__set(prop, value);
+                } else {
+                    return Reflect.set(obj, prop, value);
+                }
             },
             has: (obj: any, prop: PropertyKey): boolean => {
-                return obj.__isset(prop);
+                if (method_exist(obj, '__isset')) {
+                    return obj.__isset(prop);
+                }
+                return Reflect.has(obj, prop);
             },
             deleteProperty: (obj: any, prop: PropertyKey): boolean => {
-                return obj.__unset(prop);
+                if (method_exist(obj, '__unset')) {
+                    return obj.__unset(prop);
+                }
+                return Reflect.deleteProperty(obj, prop);
             },
         });
         return proxied;
     }
-    static __get(prop: PropertyKey): unknown {
-        return this[prop];
-    }
-    __get(prop: PropertyKey): unknown {
-        return this[prop];
-    }
-    static __set(prop: PropertyKey, value: unknown): boolean {
-        this[prop] = value;
-        return true;
-    }
-    __set(prop: PropertyKey, value: unknown): boolean {
-        this[prop] = value;
-        return true;
-    }
-    static __isset(prop: PropertyKey): boolean {
-        return prop in this && this.hasOwnProperty(prop);
-    }
-    __isset(prop: PropertyKey): boolean {
-        return prop in this && this.hasOwnProperty(prop);
-    }
-    static __unset(prop: PropertyKey): boolean {
-        delete this[prop];
-        return true;
-    }
-    __unset(prop: PropertyKey): boolean {
-        delete this[prop];
-        return true;
-    }
-    toString(): string {
-        return this.__toString();
-    }
-    static toString(): string {
-        return this.__toString();
-    }
-    __toString(): string {
-        return this.constructor.name;
-    }
-    static __toString(): string {
-        return this.prototype.constructor.name;
-    }
-    __call(prop: PropertyKey, args: Array<any>): any {
-        return this[prop](...args);
-    }
-    static __call(prop: PropertyKey, args: Array<any>): any {
-        return this[prop](...args);
-    }
-    ///*
-    constructor(...args: any) {
+    constructor() {
         const proxy = new Proxy(this, {
-            get: (obj: any, prop: PropertyKey, receiver?: any): any => {
-                if (prop === 'hasOwnProperty' && obj[prop] !== undefined && typeof obj[prop] === 'function') {
+            get: (obj: any, prop: PropertyKey): any => {
+                if (prop === 'hasOwnProperty' && method_exist(obj, 'hasOwnProperty')) {
                     return function (...args) {
-                        return obj.__isset(args);
+                        if (method_exist(obj, '__isset')) {
+                            return obj.__isset(args);
+                        }
+                        return obj.hasOwnProperty(args);
+                        //return obj.__isset(args);
                     };
-                } else if (obj[prop] != undefined && typeof obj[prop] == 'function') {
+                } else if (method_exist(obj, prop as string)) {
                     // Wrap it around a function and return it
                     if (prop.toString() === '__get') {
                         return function (...args) {
@@ -187,36 +114,53 @@ export default class MagicalObject {
                         };
                     } else {
                         return function (...args) {
-                            return obj.__call.bind(obj)(prop, args);
+                            if (method_exist(obj, '__call')) {
+                                return obj.__call.bind(obj)(prop, args);
+                            }
+                            return obj[prop].bind(obj)(...args);
+
+                            //return obj.__call.bind(obj)(prop, args);
                         };
                     }
                 } else {
-                    if (!obj.hasOwnProperty(prop)) {
-                        throw new Exception('Undefined property: ' + obj.constructor.name + '.' + (prop as string));
+                    if (method_exist(obj, '__get')) {
+                        return obj.__get(prop);
+                    } else {
+                        if (!obj.hasOwnProperty(prop)) {
+                            throw new Exception('Undefined property: ' + obj.constructor.name + '.' + (prop as string));
+                        }
+                        return Reflect.get(obj, prop);
                     }
-
-                    return obj.__get(prop, receiver);
                 }
             },
             set: (obj: any, prop: PropertyKey, value: any): boolean => {
                 if (!obj.hasOwnProperty(prop)) {
                     Object.defineProperty(obj, prop, { writable: true });
                 }
-                if (obj.__set(prop, value)) {
-                    return true;
+                if (method_exist(obj, '__set')) {
+                    if (obj.__set(prop, value)) {
+                        return true;
+                    } else {
+                        obj.deleteProperty(obj, prop);
+                        return false;
+                    }
                 } else {
-                    obj.deleteProperty(obj, prop);
-                    return false;
+                    return Reflect.set(obj, prop, value);
                 }
             },
             has: (obj: any, prop: PropertyKey): boolean => {
-                return obj.__isset(prop);
+                if (method_exist(obj, '__isset')) {
+                    return obj.__isset(prop);
+                }
+                return Reflect.has(obj, prop);
             },
             deleteProperty: (obj: any, prop: PropertyKey): boolean => {
-                return obj.__unset(prop);
+                if (method_exist(obj, '__unset')) {
+                    return obj.__unset(prop);
+                }
+                return Reflect.deleteProperty(obj, prop);
             },
         });
         return proxy;
     }
-    //*/
 }
