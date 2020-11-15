@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Exception from './Exception';
-import method_exist from './method_exists';
+import { method_exists } from './ObjectInfo';
 /*
 PHP magic method
 // __construct()**, 
@@ -26,24 +26,25 @@ additional magic method
 */
 
 export type MagicalObjectProp = string | number | symbol;
-export default class MagicalObject {
+const SeperatorMethods = '::';
+export class MagicalObject {
     static withProxy(): void {
         const proxied = new Proxy(this, {
             apply: function (obj: any, thisArg: any, argumentsList: any): any {
-                if (!method_exist(obj, '__invoke')) {
-                    throw new Exception('Undefined static property: ' + obj.name + '.' + '__invoke');
+                if (!method_exists(obj, '__invoke')) {
+                    throw new Exception('Undefined static property: ' + obj.name + SeperatorMethods + '__invoke');
                 }
                 return obj.__invoke(...argumentsList);
             },
             get: (obj: any, prop: PropertyKey, receiver?: any): any => {
-                if (prop === 'hasOwnProperty' && method_exist(obj, 'hasOwnProperty')) {
+                if (prop === 'hasOwnProperty' && method_exists(obj, 'hasOwnProperty')) {
                     return function (...args) {
-                        if (method_exist(obj, '__isset')) {
+                        if (method_exists(obj, '__isset')) {
                             return obj.__isset(args);
                         }
                         return obj.hasOwnProperty(args);
                     };
-                } else if (method_exist(obj, prop as string)) {
+                } else if (method_exists(obj, prop as string)) {
                     // Wrap it around a function and return it
                     if (prop.toString() === '__get') {
                         return function (...args) {
@@ -51,19 +52,20 @@ export default class MagicalObject {
                         };
                     } else {
                         return function (...args) {
-                            if (method_exist(obj, '__call')) {
+                            if (method_exists(obj, '__call')) {
                                 return obj.__call.bind(obj)(prop, args);
                             }
                             return obj[prop].bind(obj)(...args);
-                            //return obj.__call.bind(obj)(prop, args);
                         };
                     }
                 } else {
-                    if (method_exist(obj, '__get')) {
+                    if (method_exists(obj, '__get')) {
                         return obj.__get(prop, receiver);
                     } else {
                         if (!obj.hasOwnProperty(prop)) {
-                            throw new Exception('Undefined static property: ' + obj.name + '.' + (prop as string));
+                            throw new Exception(
+                                'Undefined static property: ' + obj.name + SeperatorMethods + (prop as string),
+                            );
                         }
                         return Reflect.get(obj, prop);
                     }
@@ -72,22 +74,22 @@ export default class MagicalObject {
             },
             set: (obj: any, prop: PropertyKey, value: any, receiver: any): boolean => {
                 if (typeof prop !== 'symbol' && !receiver.hasOwnProperty(prop)) {
-                    throw new Exception('Undefined static property: ' + obj.name + '.' + (prop as string));
+                    throw new Exception('Undefined static property: ' + obj.name + SeperatorMethods + (prop as string));
                 }
-                if (method_exist(obj, '__set')) {
+                if (method_exists(obj, '__set')) {
                     return obj.__set(prop, value);
                 } else {
                     return Reflect.set(obj, prop, value);
                 }
             },
             has: (obj: any, prop: PropertyKey): boolean => {
-                if (method_exist(obj, '__isset')) {
+                if (method_exists(obj, '__isset')) {
                     return obj.__isset(prop);
                 }
                 return Reflect.has(obj, prop);
             },
             deleteProperty: (obj: any, prop: PropertyKey): boolean => {
-                if (method_exist(obj, '__unset')) {
+                if (method_exists(obj, '__unset')) {
                     return obj.__unset(prop);
                 }
                 return Reflect.deleteProperty(obj, prop);
@@ -98,15 +100,15 @@ export default class MagicalObject {
     constructor() {
         const proxy = new Proxy(this, {
             get: (obj: any, prop: PropertyKey): any => {
-                if (prop === 'hasOwnProperty' && method_exist(obj, 'hasOwnProperty')) {
+                if (prop === 'hasOwnProperty' && method_exists(obj, 'hasOwnProperty')) {
                     return function (...args) {
-                        if (method_exist(obj, '__isset')) {
+                        if (method_exists(obj, '__isset')) {
                             return obj.__isset(args);
                         }
                         return obj.hasOwnProperty(args);
                         //return obj.__isset(args);
                     };
-                } else if (method_exist(obj, prop as string)) {
+                } else if (method_exists(obj, prop as string)) {
                     // Wrap it around a function and return it
                     if (prop.toString() === '__get') {
                         return function (...args) {
@@ -114,7 +116,7 @@ export default class MagicalObject {
                         };
                     } else {
                         return function (...args) {
-                            if (method_exist(obj, '__call')) {
+                            if (method_exists(obj, '__call')) {
                                 return obj.__call.bind(obj)(prop, args);
                             }
                             return obj[prop].bind(obj)(...args);
@@ -123,11 +125,13 @@ export default class MagicalObject {
                         };
                     }
                 } else {
-                    if (method_exist(obj, '__get')) {
+                    if (method_exists(obj, '__get')) {
                         return obj.__get(prop);
                     } else {
                         if (!obj.hasOwnProperty(prop)) {
-                            throw new Exception('Undefined property: ' + obj.constructor.name + '.' + (prop as string));
+                            throw new Exception(
+                                'Undefined property: ' + obj.constructor.name + SeperatorMethods + (prop as string),
+                            );
                         }
                         return Reflect.get(obj, prop);
                     }
@@ -137,7 +141,7 @@ export default class MagicalObject {
                 if (!obj.hasOwnProperty(prop)) {
                     Object.defineProperty(obj, prop, { writable: true });
                 }
-                if (method_exist(obj, '__set')) {
+                if (method_exists(obj, '__set')) {
                     if (obj.__set(prop, value)) {
                         return true;
                     } else {
@@ -149,13 +153,13 @@ export default class MagicalObject {
                 }
             },
             has: (obj: any, prop: PropertyKey): boolean => {
-                if (method_exist(obj, '__isset')) {
+                if (method_exists(obj, '__isset')) {
                     return obj.__isset(prop);
                 }
                 return Reflect.has(obj, prop);
             },
             deleteProperty: (obj: any, prop: PropertyKey): boolean => {
-                if (method_exist(obj, '__unset')) {
+                if (method_exists(obj, '__unset')) {
                     return obj.__unset(prop);
                 }
                 return Reflect.deleteProperty(obj, prop);
@@ -164,3 +168,4 @@ export default class MagicalObject {
         return proxy;
     }
 }
+export default MagicalObject;

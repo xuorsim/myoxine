@@ -4,6 +4,7 @@ const { it } = require('mocha');
 //import MagicalObject from './../lib/MagicalObject';
 const MagicalObject = require('../lib/MagicalObject').default;
 ///*
+const SeperatorMethods = '#';
 describe('no extended class', function () {
     describe('constructor set property', function () {
         class testMagicalObjectC extends MagicalObject {
@@ -39,7 +40,7 @@ describe('no extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject.test2');
+                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'test2');
             }
         });
         it('should correct for valid set', function () {
@@ -137,7 +138,7 @@ describe('With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject.test2');
+                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'test2');
             }
         });
         it('should correct for valid set', function () {
@@ -205,7 +206,7 @@ describe('With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject.test');
+                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'test');
             }
         });
         it('should can delete variable has not value ', function () {
@@ -218,7 +219,7 @@ describe('With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject.noValue');
+                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'noValue');
             }
         });
         it('should can delete undeclared variable ', function () {
@@ -231,7 +232,7 @@ describe('With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject.test2');
+                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'test2');
             }
         });
     });
@@ -249,7 +250,7 @@ describe('static module no extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject.__invoke');
+                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'__invoke');
             }
         });
 
@@ -265,7 +266,7 @@ describe('static module no extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject.test2');
+                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
             }
         });
         it('should correct for valid set', function () {
@@ -282,7 +283,7 @@ describe('static module no extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject.test2');
+                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
             }
         });
     });
@@ -372,7 +373,7 @@ describe('static module With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject.test2');
+                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
             }
         });
         it('should correct for valid set', function () {
@@ -389,7 +390,7 @@ describe('static module With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject.test2');
+                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
             }
         });
     });
@@ -443,7 +444,7 @@ describe('static module With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject.test');
+                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test');
             }
         });
         it('should can delete variable has not value ', function () {
@@ -456,7 +457,7 @@ describe('static module With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject.noValue');
+                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'noValue');
             }
         });
         it('should can delete undeclared variable ', function () {
@@ -469,7 +470,7 @@ describe('static module With extended class', function () {
             } catch (error) {
                 //console.log(error.getMessage());
                 expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject.test2');
+                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
             }
         });
     });
