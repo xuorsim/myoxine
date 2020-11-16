@@ -26,8 +26,27 @@ additional magic method
 */
 
 export type MagicalObjectProp = string | number | symbol;
+export interface StaticMagicObjectType {
+    new (someParam?: any): MagicObjectType;
+    withProxy: () => void;
+    __toString?: () => string;
+    __invoke?: (...argumentsList: any) => any;
+    __set?: (props: MagicalObjectProp, value: any) => boolean;
+    __isset?: (props: MagicalObjectProp) => boolean;
+    __unset?: (props: MagicalObjectProp) => boolean;
+    __get?: (props: MagicalObjectProp) => any;
+    __call?: (props: MagicalObjectProp) => any;
+}
+export interface MagicObjectType {
+    __set?: (props: MagicalObjectProp, value: any) => boolean;
+    __get?: (props: MagicalObjectProp) => any;
+    __isset?: (props: MagicalObjectProp) => boolean;
+    __unset?: (props: MagicalObjectProp) => boolean;
+    __call?: (props: MagicalObjectProp) => any;
+    __toString?: () => string;
+}
 const SeperatorMethods = '::';
-export class MagicalObject {
+export class MagicalObject implements MagicObjectType {
     static withProxy(): void {
         const proxied = new Proxy(this, {
             apply: function (obj: any, thisArg: any, argumentsList: any): any {
@@ -37,7 +56,14 @@ export class MagicalObject {
                 return obj.__invoke(...argumentsList);
             },
             get: (obj: any, prop: PropertyKey, receiver?: any): any => {
-                if (prop === 'hasOwnProperty' && method_exists(obj, 'hasOwnProperty')) {
+                if (prop === 'toString' && method_exists(obj, 'toString')) {
+                    return function (...args) {
+                        if (method_exists(obj, '__toString')) {
+                            return obj.__toString(args);
+                        }
+                        return obj.toString();
+                    };
+                } else if (prop === 'hasOwnProperty' && method_exists(obj, 'hasOwnProperty')) {
                     return function (...args) {
                         if (method_exists(obj, '__isset')) {
                             return obj.__isset(args);
@@ -100,7 +126,15 @@ export class MagicalObject {
     constructor() {
         const proxy = new Proxy(this, {
             get: (obj: any, prop: PropertyKey): any => {
-                if (prop === 'hasOwnProperty' && method_exists(obj, 'hasOwnProperty')) {
+                if (prop === 'toString' && method_exists(obj, 'toString')) {
+                    return function (...args) {
+                        if (method_exists(obj, '__toString')) {
+                            return obj.__toString(args);
+                        }
+                        return obj.toString();
+                        //return obj.__isset(args);
+                    };
+                } else if (prop === 'hasOwnProperty' && method_exists(obj, 'hasOwnProperty')) {
                     return function (...args) {
                         if (method_exists(obj, '__isset')) {
                             return obj.__isset(args);

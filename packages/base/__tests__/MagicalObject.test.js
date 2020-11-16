@@ -4,7 +4,7 @@ const { it } = require('mocha');
 //import MagicalObject from './../lib/MagicalObject';
 const MagicalObject = require('../lib/MagicalObject').default;
 ///*
-const SeperatorMethods = '#';
+const SeperatorMethods = '::';
 describe('no extended class', function () {
     describe('constructor set property', function () {
         class testMagicalObjectC extends MagicalObject {
@@ -109,6 +109,20 @@ describe('no extended class', function () {
     });
 });
 describe('With extended class', function () {
+    describe('test toString property', function () {
+        class testMagicalObject extends MagicalObject {
+            test = 'value';
+            __toString(){
+                return this.test+"1";
+            }
+        }
+        const obj = new testMagicalObject();
+        it('should correct for valid toString', function () {
+            expect(obj.toString()).equal('value1');
+        });
+
+    })
+
     describe('test setter and getter property', function () {
         class testSGMagicalObject extends MagicalObject {
             test = 'value test';
@@ -394,6 +408,18 @@ describe('static module With extended class', function () {
             }
         });
     });
+    describe('test toString property', function () {
+        const testMagicalObject=class testMagicalObject extends MagicalObject {
+            static __toString(){
+                return this.name+"1";
+            }
+        }.withProxy();
+        it('should correct for valid toString', function () {
+            expect(testMagicalObject.toString()).equal('testMagicalObject1');
+        });
+
+    })
+
     describe('test isset property', function () {
         var testMagicalObject = class testMagicalObject extends MagicalObject {
             static test = 'value test';
