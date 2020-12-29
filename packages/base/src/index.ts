@@ -1,1 +1,1 @@
-export * from './MagicalObject';
+export * from './ProxyObject';

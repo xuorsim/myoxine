@@ -1,14 +1,17 @@
 export default class Exception extends Error {
-    name = 'Exception';
+    _name = 'Exception';
     _message;
     constructor(message: string) {
         super(message);
         this._message = message;
     }
     getName = (): string => {
-        return this.constructor.name;
+        return this._name;
     };
     getMessage = (): string => {
         return this._message;
+    };
+    toString = (): string => {
+        return this.getName() + ' : ' + this.getMessage();
     };
 }

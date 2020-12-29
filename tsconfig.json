@@ -1,5 +1,4 @@
 {
-
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
@@ -15,10 +14,10 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "target": "es6",
+    "target": "ES2016",
     "sourceMap": true,
     "lib": [
-      "es6"
+      "ES2016"
     ]
   },
 

@@ -1,17 +1,19 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import MagicalObject, { MagicalObjectProp } from './MagicalObject';
-import { method_exists, property_exists } from './ObjectInfo';
+import ProxyObject, { ProxyObjectProp } from './ProxyObject';
+import { method_exists, property_exists, method_child_exists } from './ObjectInfo';
 import StringHelper from '@myoxine/helpers/StringHelper';
 import InvalidCallException from './InvalidCallException';
 import UnknownPropertyException from './UnknownPropertyException';
 import UnknownMethodException from './UnknownMethodException';
 
-import { get_class } from './ObjectInfo';
+import { get_class, get_methods } from './ObjectInfo';
 import Configurable from './Configurable';
-export default class BaseObject extends MagicalObject implements Configurable {
+export default class BaseObject extends ProxyObject implements Configurable {
     static className(): string {
-        return get_class(this);
+        //console.log(this);
+        //return get_class(this);
+        return this.name;
     }
     constructor(config) {
         super();
@@ -20,29 +22,37 @@ export default class BaseObject extends MagicalObject implements Configurable {
             Yii::configure($this, $config);
         }
         */
-        this.init();
+        //this.init();
     }
-    init = (): void => {
+    init(): void {
         console.log('test');
-    };
-    __get = (name: MagicalObjectProp): any => {
-        const getter = 'get_' + (name as string);
-        if (method_exists(this, StringHelper.camelCase(getter))) {
-            return this[getter]();
-        } else if (method_exists(this, StringHelper.camelCase('set' + (name as string)))) {
-            throw new InvalidCallException(
-                'Getting write-only property: ' +
-                    Object.getPrototypeOf(this).constructor.name +
-                    '::' +
-                    (name as string),
+    }
+    __get(name: ProxyObjectProp): any {
+        /*
+        if (!this[name] || typeof this[name] !== 'function') {
+            const getter = StringHelper.camelCase('get_' + (name as string));
+            const setter = StringHelper.camelCase('set_' + (name as string));
+
+            if (method_exists(this, getter)) {
+                return this[getter]();
+            } else if (method_exists(this, setter)) {
+                throw new InvalidCallException(
+                    'Getting write-only property: ' +
+                        Object.getPrototypeOf(this).constructor.name +
+                        '::' +
+                        (name as string),
+                );
+            }
+
+            throw new UnknownPropertyException(
+                'Getting unknown property: ' + get_class(this) + '::' + (name as string),
             );
         }
-
-        throw new UnknownPropertyException('Getting unknown property: ' + get_class(this) + '::' + (name as string));
-    };
-    __set = (name: MagicalObjectProp, value: any): boolean => {
-        const setter = 'set_' + (name as string);
-        if (method_exists(this, StringHelper.camelCase(setter))) {
+        */
+    }
+    __set(name: ProxyObjectProp, value: any): boolean {
+        const setter = StringHelper.camelCase('set_' + (name as string));
+        if (method_exists(this, setter)) {
             return this[setter](value);
         } else if (method_exists(this, StringHelper.camelCase('get_' + (name as string)))) {
             throw new InvalidCallException('Setting read-only property: ' + get_class(this) + '::' + (name as string));
@@ -51,18 +61,18 @@ export default class BaseObject extends MagicalObject implements Configurable {
                 'Setting unknown property: ' + get_class(this) + '::' + (name as string),
             );
         }
-        return true;
-    };
-    __isset = (name: MagicalObjectProp): boolean => {
-        const getter = 'get_' + (name as string);
-        if (method_exists(this, StringHelper.camelCase(getter))) {
+        //return true;
+    }
+    __isset(name: ProxyObjectProp): boolean {
+        const getter = StringHelper.camelCase('get_' + (name as string));
+        if (method_exists(this, getter)) {
             return this[getter]() !== null && this[getter]() !== undefined;
         }
         return false;
-    };
-    __unset = (name: MagicalObjectProp): boolean => {
-        const setter = 'set_' + (name as string);
-        if (method_exists(this, StringHelper.camelCase(setter))) {
+    }
+    __unset(name: ProxyObjectProp): boolean {
+        const setter = StringHelper.camelCase('set_' + (name as string));
+        if (method_exists(this, setter)) {
             return this[setter](null);
         } else if (method_exists(this, StringHelper.camelCase('get_' + (name as string)))) {
             throw new InvalidCallException(
@@ -70,9 +80,12 @@ export default class BaseObject extends MagicalObject implements Configurable {
             );
         }
         return false;
-    };
-    __call(name: string): void {
+    }
+    __call(name: string, args: any): void {
+        //if (method_child_exists(this, 'BaseObject', 'name')) {
         throw new UnknownMethodException('Calling unknown method: ' + get_class(this) + '::' + name + '()');
+        //}
+        return this[name](...args);
     }
     canGetProperty(name: string, checkVars = true): boolean {
         return (

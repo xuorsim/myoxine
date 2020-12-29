@@ -26,8 +26,13 @@
     "prettier": "prettier --config .prettierrc  --write \"src/**/*.ts\"",
     "lint": "eslint --fix --ext ts --ext tsx",
     "test": "mocha -r ts-node/register  ./__tests__/**/*.test.ts",
+    "test:file": "mocha ",
     "test:js": "mocha  ./__tests__/*.test.js",
-    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
+    "coverage:js": "nyc -r lcov -e .ts -x \"*.test.js\" npm run test:js",
+    "coverage:file": "nyc -r lcov -e .ts -x \"*.test.js\" npm run test:file",
+    "argument": "echo \"The value of --foo is '${npm_config_foo}'\""
+
   },
   "devDependencies": {
     "@types/chai": "^4.2.12",
@@ -44,5 +49,8 @@
     "nyc": "^15.1.0",
     "prettier": "^2.1.2",
     "ts-node": "^9.0.0"
+  },
+  "dependencies": {
+    "@myoxine/helpers": "^1.0.1-alpha.0"
   }
 }

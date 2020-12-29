@@ -1,504 +1,120 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { expect } = require('chai');
 const { it } = require('mocha');
-//import MagicalObject from './../lib/MagicalObject';
+//import ProxyObject from './../lib/ProxyObject';
 const MagicalObject = require('../lib/MagicalObject').default;
-///*
+const get_methods = require('../lib/ObjectInfo').get_methods;
 const SeperatorMethods = '::';
-describe('no extended class', function () {
-    describe('constructor set property', function () {
-        class testMagicalObjectC extends MagicalObject {
-            test = 'value test';
-            noValue = 'value';
-            constructor(value) {
+describe('test getter, setter property', function () {
+    ///*
+    it('should return value when declared property', function () {
+        class testMagicalObject extends MagicalObject {
+            bbb = 'test';
+        }
+        const test = new testMagicalObject();
+        test.bbb = 'bbb';
+        expect(test.bbb).equal('bbb');
+        expect(test.hasOwnProperty('bbb')).equal(true);
+        expect('bbb' in test).equal(true);
+        delete test.bbb;
+    });
+    it('should return error when undeclare property', function () {
+        class testMagicalObject extends MagicalObject {
+            bbb = 'test';
+        }
+        const test = new testMagicalObject();
+        try {
+            test.aaa;
+        } catch (error) {
+            expect(error.getName()).equal('Unknown Property');
+            expect(error.getMessage()).equal('Undefined property: testMagicalObject' + SeperatorMethods + 'aaa');
+        }
+        try {
+            test.aaa = 'aaaa';
+        } catch (error) {
+            expect(error.getName()).equal('Unknown Property');
+            expect(error.getMessage()).equal('Undefined property: testMagicalObject' + SeperatorMethods + 'aaa');
+        }
+        try {
+            delete test.aaa;
+        } catch (error) {
+            expect(error.getName()).equal('Unknown Property');
+            expect(error.getMessage()).equal('Undefined property: testMagicalObject' + SeperatorMethods + 'aaa');
+        }
+    });
+    //*/
+    it('should call __get __set __isset and __unset when undeclare property', function () {
+        ///*
+        class testMagicalObject extends MagicalObject {
+            #hiddenProp = 'zzz';
+            constructor(data) {
                 super();
-                this.noValue = value;
+                this.#hiddenProp = data;
+                this.__isset = this.__isset.bind(this);
+                this.__get = this.__get.bind(this);
+                this.__set = this.__set.bind(this);
+                this.__unset = this.__unset.bind(this);
+                //return this.withProxy();
             }
-        } //.withProxy();
-        //testMagicalObject = testMagicalObject.proxyStatic();
-        obj = new testMagicalObjectC('no value');
-        it('should return when the value is not present', function () {
-            expect(obj.noValue).equal('no value');
-        });
-    });
-
-    describe('test setter and getter property', function () {
-        class testMagicalObject extends MagicalObject {
-            test = 'value test';
-            noValue;
-        }
-        const obj = new testMagicalObject();
-        it('should correct for valid get', function () {
-            expect(obj.test).equal('value test');
-        });
-        it('should correct for valid get undefined variable', function () {
-            expect(obj.noValue).equal(undefined);
-        });
-        it('should error for get undeclared property', function () {
-            try {
-                obj.test2;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'test2');
+            __get(prop) {
+                return this.#hiddenProp;
             }
-        });
-        it('should correct for valid set', function () {
-            obj.test = 'changed value test';
-            expect(obj.test).equal('changed value test');
-        });
-        it('should correct for valid set undefined', function () {
-            obj.noValue = 'changed value defined';
-            expect(obj.noValue).equal('changed value defined');
-        });
-        it('should allow to set undeclared property', function () {
-            obj.test2 = 'new value test2';
-            expect(obj.test2).equal('new value test2');
-        });
-    });
-    describe('test isset property', function () {
-        class testMagicalObject extends MagicalObject {
-            test = 'value test';
-            noValue;
-        }
-        const obj = new testMagicalObject();
-        describe('test with "in"', function () {
-            it('should true for variable has value"', function () {
-                expect('test' in obj).equal(true);
-            });
-            it('should true for variable has no value"', function () {
-                expect('noValue' in obj).equal(true);
-            });
-            it('should false for undeclared variable', function () {
-                expect('justtest' in obj).equal(false);
-            });
-        });
-        describe('test with "hasOwnProperty"', function () {
-            it('should can variable has value ', function () {
-                expect(obj.hasOwnProperty('test')).equal(true);
-            });
-            it('should true for variable has not value"', function () {
-                expect(obj.hasOwnProperty('noValue')).equal(true);
-            });
-            it('should false for undeclared variable"', function () {
-                expect(obj.hasOwnProperty('justtest')).equal(false);
-            });
-        });
-    });
-    describe('test unset property', function () {
-        class testMagicalObject extends MagicalObject {
-            test = 'value test';
-            noValue;
-        }
-        const obj = new testMagicalObject();
-        it('should can delete variable has value ', function () {
-            delete obj.test;
-            expect('test' in obj).equal(false);
-            expect(obj.hasOwnProperty('test')).equal(false);
-        });
-        it('should can delete variable has not value ', function () {
-            delete obj.noValue;
-            expect('noValue' in obj).equal(false);
-            expect(obj.hasOwnProperty('noValue')).equal(false);
-        });
-        it('should can delete undeclared variable ', function () {
-            delete obj.test2;
-            expect('test2' in obj).equal(false);
-            expect(obj.hasOwnProperty('test2')).equal(false);
-        });
-    });
-});
-describe('With extended class', function () {
-    describe('test toString property', function () {
-        class testMagicalObject extends MagicalObject {
-            test = 'value';
-            __toString(){
-                return this.test+"1";
+            __set(prop, value) {
+                //console.log(this.getHidden() + 'vvv');
+                return (this.#hiddenProp = value);
             }
-        }
-        const obj = new testMagicalObject();
-        it('should correct for valid toString', function () {
-            expect(obj.toString()).equal('value1');
-        });
-
-    })
-
-    describe('test setter and getter property', function () {
-        class testSGMagicalObject extends MagicalObject {
-            test = 'value test';
-            noValue;
-            /*
-            constructor(){
-                super();
-            }
-            */
-            __get(props) {
-                return this[props] + '2';
-            }
-            __set(props, value) {
-                return (this[props] = value + '3');
-            }
-        }
-        const obj = new testSGMagicalObject();
-        it('should correct for valid get', function () {
-            expect(obj.test).equal('value test2');
-        });
-        it('should correct for valid get undefined variable', function () {
-            expect(obj.noValue).equal('undefined2');
-        });
-        it('should error for get undeclared property', function () {
-            try {
-                obj.test2;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'test2');
-            }
-        });
-        it('should correct for valid set', function () {
-            obj.test = 'changed value test';
-            expect(obj.test).equal('changed value test32');
-        });
-        it('should correct for valid set undefined', function () {
-            obj.noValue = 'changed value defined';
-            expect(obj.noValue).equal('changed value defined32');
-        });
-        it('should allow to set undeclared property', function () {
-            obj.test2 = 'new value test';
-            expect(obj.test2).equal('new value test32');
-        });
-    });
-    describe('test isset property', function () {
-        class testMagicalObject extends MagicalObject {
-            test = 'value test';
-            noValue;
-            __isset(prop) {
-                return !this.hasOwnProperty(prop);
-            }
-        }
-        const obj = new testMagicalObject();
-        describe('test with "in"', function () {
-            it('should true for variable has value"', function () {
-                expect('test' in obj).equal(false);
-            });
-            it('should true for variable has no value"', function () {
-                expect('noValue' in obj).equal(false);
-            });
-            it('should false for undeclared variable', function () {
-                expect('justtest' in obj).equal(true);
-            });
-        });
-        describe('test with "hasOwnProperty"', function () {
-            it('should can variable has value ', function () {
-                expect(obj.hasOwnProperty('test')).equal(false);
-            });
-            it('should true for variable has not value"', function () {
-                expect(obj.hasOwnProperty('noValue')).equal(false);
-            });
-            it('should false for undeclared variable"', function () {
-                expect(obj.hasOwnProperty('justtest')).equal(true);
-            });
-        });
-    });
-    describe('test unset property', function () {
-        class testMagicalObject extends MagicalObject {
-            test = 'value test';
-            noValue;
             __unset(prop) {
-                this['new_' + prop] = this[prop];
-                return delete this[prop];
+                return (this.#hiddenProp = 'zzz');
+            }
+            __isset(prop) {
+                return this.#hiddenProp !== 'zzz';
+            }
+            getHidden() {
+                return this.#hiddenProp;
             }
         }
-        const obj = new testMagicalObject();
-        it('should can delete variable has value ', function () {
-            delete obj.test;
-            expect('test' in obj).equal(false);
-            expect(obj.hasOwnProperty('test')).equal(false);
-            expect(obj.new_test).equal('value test');
-            try {
-                obj.test;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'test');
+        const test = new testMagicalObject('xxx');
+        test.ccc = 'aaa';
+        expect(test.ccc).equal('aaa');
+        expect('ccc' in test).equal(true);
+        delete test.ccc;
+        expect(test.hasOwnProperty('ccc')).equal(false);
+        //*/
+        /*
+        class DataStore {
+            #data; // must be declared
+            constructor(data) {
+                this.#data = data;
             }
-        });
-        it('should can delete variable has not value ', function () {
-            delete obj.noValue;
-            expect('noValue' in obj).equal(false);
-            expect(obj.hasOwnProperty('noValue')).equal(false);
-            expect(obj.new_noValue).equal(undefined);
-            try {
-                obj.noValue;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'noValue');
+            getData() {
+                return this.#data;
             }
-        });
-        it('should can delete undeclared variable ', function () {
-            delete obj.test2;
-            expect('test2' in obj).equal(false);
-            expect(obj.hasOwnProperty('test2')).equal(false);
-            expect(obj.new_test2).equal(undefined);
-            try {
-                obj.test2;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined property: testMagicalObject'+SeperatorMethods+'test2');
-            }
-        });
+        }
+        const test = new DataStore('aaa');
+        expect(test.getData()).equal('aaa');
+        */
     });
-});
-
-describe('static module no extended class', function () {
-    describe('test setter and getter property', function () {
+    it('should call __invoke', function () {
         var testMagicalObject = class testMagicalObject extends MagicalObject {
-            static test = 'value test';
-            static noValue;
-        }.withProxy();
-        it('should error trying trap __invoke', function () {
-            try {
-                testMagicalObject('test');
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'__invoke');
-            }
-        });
-
-        it('should correct for valid get', function () {
-            expect(testMagicalObject.test).equal('value test');
-        });
-        it('should correct for valid get undefined variable', function () {
-            expect(testMagicalObject.noValue).equal(undefined);
-        });
-        it('should error for get undeclared property', function () {
-            try {
-                testMagicalObject.test2;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
-            }
-        });
-        it('should correct for valid set', function () {
-            testMagicalObject.test = 'changed value test';
-            expect(testMagicalObject.test).equal('changed value test');
-        });
-        it('should correct for valid set undefined', function () {
-            testMagicalObject.noValue = 'changed value defined';
-            expect(testMagicalObject.noValue).equal('changed value defined');
-        });
-        it('should allow to set undeclared property', function () {
-            try {
-                testMagicalObject.test2 = 'new value test2';
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
-            }
-        });
-    });
-    describe('test isset property', function () {
-        var testMagicalObject = class testMagicalObject extends MagicalObject {
-            static test = 'value test';
-            static noValue;
-        }.withProxy();
-        describe('test with "in"', function () {
-            it('should true for variable has value"', function () {
-                expect('test' in testMagicalObject).equal(true);
-            });
-            it('should true for variable has no value"', function () {
-                expect('noValue' in testMagicalObject).equal(true);
-            });
-            it('should false for undeclared variable', function () {
-                expect('justtest' in testMagicalObject).equal(false);
-            });
-        });
-        describe('test with "hasOwnProperty"', function () {
-            it('should can variable has value ', function () {
-                expect(testMagicalObject.hasOwnProperty('test')).equal(true);
-            });
-            it('should true for variable has not value"', function () {
-                expect(testMagicalObject.hasOwnProperty('noValue')).equal(true);
-            });
-            it('should false for undeclared variable"', function () {
-                expect(testMagicalObject.hasOwnProperty('justtest')).equal(false);
-            });
-        });
-    });
-    describe('test unset property', function () {
-        var testMagicalObject = class testMagicalObject extends MagicalObject {
-            static test = 'value test';
-            static noValue;
-        }.withProxy();
-        it('should can delete variable has value ', function () {
-            delete testMagicalObject.test;
-            expect('test' in testMagicalObject).equal(false);
-            expect(testMagicalObject.hasOwnProperty('test')).equal(false);
-        });
-        it('should can delete variable has not value ', function () {
-            delete testMagicalObject.noValue;
-            expect('noValue' in testMagicalObject).equal(false);
-            expect(testMagicalObject.hasOwnProperty('noValue')).equal(false);
-        });
-        it('should can delete undeclared variable ', function () {
-            delete testMagicalObject.test2;
-            expect('test2' in testMagicalObject).equal(false);
-            expect(testMagicalObject.hasOwnProperty('test2')).equal(false);
-        });
-    });
-});
-describe('static module With extended class', function () {
-    describe('test setter and getter property', function () {
-        var testMagicalObject = class testMagicalObject extends MagicalObject {
-            static test = 'value test';
-            static noValue;
-            static __get(props) {
-                //var val = super.__get(props);
-                return this[props] + '2';
-            }
-            static __set(props, value) {
-                this[props] = value + '3';
-                return true;
-            }
             static __invoke(...args) {
+                console.log('invoke');
                 return args;
             }
         }.withProxy();
-        it('should valid trying trap __invoke', function () {
+        const results = testMagicalObject('test', 'test2');
+        expect(results.length).equal(2);
+        expect(results[0]).equal('test');
+        expect(results[1]).equal('test2');
+    });
+    it('should error call __invoke', function () {
+        var testMagicalObject = class testMagicalObject extends MagicalObject {}.withProxy();
+        try {
             const results = testMagicalObject('test', 'test2');
-            expect(results.length).equal(2);
-            expect(results[0]).equal('test');
-            expect(results[1]).equal('test2');
-        });
-
-        it('should correct for valid get', function () {
-            expect(testMagicalObject.test).equal('value test2');
-        });
-        it('should correct for valid get undefined variable', function () {
-            expect(testMagicalObject.noValue).equal('undefined2');
-        });
-        it('should error for get undeclared property', function () {
-            try {
-                testMagicalObject.test2;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
-            }
-        });
-        it('should correct for valid set', function () {
-            testMagicalObject.test = 'changed value test';
-            expect(testMagicalObject.test).equal('changed value test32');
-        });
-        it('should correct for valid set undefined', function () {
-            testMagicalObject.noValue = 'changed value defined';
-            expect(testMagicalObject.noValue).equal('changed value defined32');
-        });
-        it('should allow to set undeclared property', function () {
-            try {
-                testMagicalObject.test2 = 'new value test';
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
-            }
-        });
-    });
-    describe('test toString property', function () {
-        const testMagicalObject=class testMagicalObject extends MagicalObject {
-            static __toString(){
-                return this.name+"1";
-            }
-        }.withProxy();
-        it('should correct for valid toString', function () {
-            expect(testMagicalObject.toString()).equal('testMagicalObject1');
-        });
-
-    })
-
-    describe('test isset property', function () {
-        var testMagicalObject = class testMagicalObject extends MagicalObject {
-            static test = 'value test';
-            static noValue;
-            static __isset(prop) {
-                return !this.hasOwnProperty(prop);
-            }
-        }.withProxy();
-        describe('test with "in"', function () {
-            it('should true for variable has value"', function () {
-                expect('test' in testMagicalObject).equal(false);
-            });
-            it('should true for variable has no value"', function () {
-                expect('noValue' in testMagicalObject).equal(false);
-            });
-            it('should false for undeclared variable', function () {
-                expect('justtest' in testMagicalObject).equal(true);
-            });
-        });
-        describe('test with "hasOwnProperty"', function () {
-            it('should can variable has value ', function () {
-                expect(testMagicalObject.hasOwnProperty('test')).equal(false);
-            });
-            it('should true for variable has not value"', function () {
-                expect(testMagicalObject.hasOwnProperty('noValue')).equal(false);
-            });
-            it('should false for undeclared variable"', function () {
-                expect(testMagicalObject.hasOwnProperty('justtest')).equal(true);
-            });
-        });
-    });
-    describe('test unset property', function () {
-        var testMagicalObject = class testMagicalObject extends MagicalObject {
-            static test = 'value test';
-            static noValue;
-            static __unset(prop) {
-                this['new_' + prop] = this[prop];
-                return delete this[prop];
-            }
-        }.withProxy();
-        it('should can delete variable has value ', function () {
-            delete testMagicalObject.test;
-            expect('test' in testMagicalObject).equal(false);
-            expect(testMagicalObject.hasOwnProperty('test')).equal(false);
-            expect(testMagicalObject.new_test).equal('value test');
-            try {
-                testMagicalObject.test;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test');
-            }
-        });
-        it('should can delete variable has not value ', function () {
-            delete testMagicalObject.noValue;
-            expect('noValue' in testMagicalObject).equal(false);
-            expect(testMagicalObject.hasOwnProperty('noValue')).equal(false);
-            expect(testMagicalObject.new_noValue).equal(undefined);
-            try {
-                testMagicalObject.noValue;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'noValue');
-            }
-        });
-        it('should can delete undeclared variable ', function () {
-            delete testMagicalObject.test2;
-            expect('test2' in testMagicalObject).equal(false);
-            expect(testMagicalObject.hasOwnProperty('test2')).equal(false);
-            expect(testMagicalObject.new_test2).equal(undefined);
-            try {
-                testMagicalObject.test2;
-            } catch (error) {
-                //console.log(error.getMessage());
-                expect(error.getName()).equal('Exception');
-                expect(error.getMessage()).equal('Undefined static property: testMagicalObject'+SeperatorMethods+'test2');
-            }
-        });
+        } catch (error) {
+            expect(error.getName()).equal('Unknown Property');
+            expect(error.getMessage()).equal(
+                'Undefined static property: testMagicalObject' + SeperatorMethods + '__invoke',
+            );
+        }
     });
 });
-//*/
