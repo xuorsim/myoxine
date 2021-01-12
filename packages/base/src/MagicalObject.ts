@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 //import UnknownMethodException from './UnknownMethodException';
 import UnknownPropertyException from './UnknownPropertyException';
-import { get_methods, method_exists } from './ObjectInfo';
+import { method_exists } from './ObjectInfo';
 
 export type ProxyObjectProp = string | number | symbol;
 export interface StaticProxyObjectType {
@@ -25,7 +25,7 @@ export interface ProxyObjectType {
 const SeperatorMethods = '::';
 
 const handlerProxy = {
-    get: (obj: any, prop: PropertyKey, receiver: any): any => {
+    get: (obj: any, prop: PropertyKey): any => {
         if (prop === 'hasOwnProperty') {
             return function (...args) {
                 if (method_exists(obj, '__isset')) {
@@ -47,7 +47,7 @@ const handlerProxy = {
         //return typeof value == 'function' ? value.bind(receiver) : value;
         return Reflect.get(obj, prop);
     },
-    set: (obj: any, prop: PropertyKey, value: any, receiver: any): boolean => {
+    set: (obj: any, prop: PropertyKey, value: any): boolean => {
         if (!Reflect.has(obj, prop)) {
             if (method_exists(obj, '__set')) {
                 //return Reflect.get(obj, '__set', receiver).bind(obj)(prop, value);

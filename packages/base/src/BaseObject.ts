@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import ProxyObject, { ProxyObjectProp } from './ProxyObject';
-import { method_exists, property_exists, method_child_exists } from './ObjectInfo';
+import MagicalObject, { ProxyObjectProp } from './MagicalObject';
+import { method_exists, property_exists } from './ObjectInfo';
 import StringHelper from '@myoxine/helpers/StringHelper';
 import InvalidCallException from './InvalidCallException';
 import UnknownPropertyException from './UnknownPropertyException';
 import UnknownMethodException from './UnknownMethodException';
 
-import { get_class, get_methods } from './ObjectInfo';
+import { get_class } from './ObjectInfo';
 import Configurable from './Configurable';
-export default class BaseObject extends ProxyObject implements Configurable {
+export default class BaseObject extends MagicalObject implements Configurable {
     static className(): string {
         //console.log(this);
         //return get_class(this);
@@ -22,17 +22,16 @@ export default class BaseObject extends ProxyObject implements Configurable {
             Yii::configure($this, $config);
         }
         */
-        //this.init();
+        this.init();
     }
     init(): void {
-        console.log('test');
+        //console.log('test');
     }
     __get(name: ProxyObjectProp): any {
-        /*
-        if (!this[name] || typeof this[name] !== 'function') {
+        ///*
+        if (!this[name] && typeof this[name] !== 'function') {
             const getter = StringHelper.camelCase('get_' + (name as string));
             const setter = StringHelper.camelCase('set_' + (name as string));
-
             if (method_exists(this, getter)) {
                 return this[getter]();
             } else if (method_exists(this, setter)) {
@@ -48,7 +47,7 @@ export default class BaseObject extends ProxyObject implements Configurable {
                 'Getting unknown property: ' + get_class(this) + '::' + (name as string),
             );
         }
-        */
+        //*/
     }
     __set(name: ProxyObjectProp, value: any): boolean {
         const setter = StringHelper.camelCase('set_' + (name as string));
@@ -94,7 +93,10 @@ export default class BaseObject extends ProxyObject implements Configurable {
         );
     }
     canSetProperty(name: string, checkVars = true): boolean {
-        return method_exists(this, 'set' + name) || (checkVars && property_exists(this, name));
+        return (
+            method_exists(this, StringHelper.camelCase('set_' + (name as string))) ||
+            (checkVars && property_exists(this, name))
+        );
     }
     hasProperty(name: string, checkVars = true): boolean {
         return this.canGetProperty(name, checkVars) || this.canSetProperty(name, false);
