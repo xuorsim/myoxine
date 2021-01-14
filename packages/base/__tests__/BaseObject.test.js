@@ -11,6 +11,16 @@ describe('define className baseobject', function () {
     it('should get classname', function () {
         expect(TestBaseObject.className()).equal('TestBaseObject');
     });
+    it('should configure property', function () {
+        try {
+            const test = new TestBaseObject({ test: 'coba' });
+            //expect(test.test).equal('coba');
+        } catch (error) {
+            //console.log(error.getMessage());
+            expect(error.getName()).equal('Unknown Property');
+            expect(error.getMessage()).equal('Setting unknown property: TestBaseObject' + SeperatorMethods + 'test');
+        }
+    });
 });
 describe('defined property baseobject', function () {
     class TestBaseObject extends BaseObject {
@@ -68,6 +78,14 @@ describe('undefined property baseobject', function () {
             );
         }
     });
+    it('error  Unknown method', function () {
+        try {
+            test.coba();
+        } catch (error) {
+            expect(error.getName()).equal('Unknown Method');
+            expect(error.getMessage()).equal('Undefined method: TestBaseObject' + SeperatorMethods + 'coba');
+        }
+    });
     it('retrun false when dont have setter and getter', function () {
         expect(delete test.no_declare).equal(false);
     });
@@ -120,7 +138,7 @@ describe('readonly/writeonly property baseobject', function () {
             return (this.#privateProp = val);
         }
         getCoba(val) {
-            return (this.#privateProp = val);
+            return this.#privateProp;
         }
     }
     const test = new TestBaseObject();
@@ -140,12 +158,19 @@ describe('readonly/writeonly property baseobject', function () {
             expect(error.getMessage()).equal('Setting read-only property: TestBaseObject' + SeperatorMethods + 'coba');
         }
     });
+
+    it('should retrunt false has property write only', function () {
+        expect(test.hasOwnProperty('test')).equal(false);
+        expect('test' in test).equal(false);
+    });
+    it('should retrunt true has property read only', function () {
+        expect(test.hasOwnProperty('coba')).equal(true);
+        expect('coba' in test).equal(true);
+    });
     it('should check has property write only', function () {
-        const test = new TestBaseObject();
         expect(test.hasProperty('test')).equal(true);
     });
     it('should check has property read only', function () {
-        const test = new TestBaseObject();
         expect(test.hasProperty('coba')).equal(true);
     });
     it('error call unset for write only', function () {

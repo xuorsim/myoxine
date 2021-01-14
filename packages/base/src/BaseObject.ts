@@ -6,7 +6,7 @@ import StringHelper from '@myoxine/helpers/StringHelper';
 import InvalidCallException from './InvalidCallException';
 import UnknownPropertyException from './UnknownPropertyException';
 import UnknownMethodException from './UnknownMethodException';
-
+import MyOxine from './MyOxine';
 import { get_class } from './ObjectInfo';
 import Configurable from './Configurable';
 export default class BaseObject extends MagicalObject implements Configurable {
@@ -15,13 +15,11 @@ export default class BaseObject extends MagicalObject implements Configurable {
         //return get_class(this);
         return this.name;
     }
-    constructor(config) {
+    constructor(config: Record<string, any> | undefined) {
         super();
-        /*
-        if (!empty($config)) {
-            Yii::configure($this, $config);
+        if (config) {
+            MyOxine.configure(this, config);
         }
-        */
         this.init();
     }
     init(): void {
@@ -42,10 +40,32 @@ export default class BaseObject extends MagicalObject implements Configurable {
                         (name as string),
                 );
             }
-
+            /*
             throw new UnknownPropertyException(
                 'Getting unknown property: ' + get_class(this) + '::' + (name as string),
             );
+                */
+            ///*
+            let isProp = true;
+            Promise.resolve()
+                .then(() => {
+                    if (isProp) {
+                        throw new UnknownPropertyException(
+                            'Getting unknown property: ' + get_class(this) + '::' + (name as string),
+                        );
+                    }
+                })
+                .catch((error) => {
+                    return error;
+                });
+            return new Proxy(Function, {
+                //get: handlerProxy.get,
+                apply: () => {
+                    isProp = false;
+                    throw new UnknownMethodException('Undefined method: ' + get_class(this) + '::' + (name as string));
+                },
+            });
+            //*/
         }
         //*/
     }
@@ -80,12 +100,14 @@ export default class BaseObject extends MagicalObject implements Configurable {
         }
         return false;
     }
+    /*
     __call(name: string, args: any): void {
         //if (method_child_exists(this, 'BaseObject', 'name')) {
         throw new UnknownMethodException('Calling unknown method: ' + get_class(this) + '::' + name + '()');
         //}
-        return this[name](...args);
+        //return this[name](...args);
     }
+    */
     canGetProperty(name: string, checkVars = true): boolean {
         return (
             method_exists(this, StringHelper.camelCase('get_' + (name as string))) ||
