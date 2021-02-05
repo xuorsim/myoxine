@@ -1,0 +1,53 @@
+{
+  "name": "@myoxine/myoxine",
+  "version": "1.0.1-alpha.0",
+  "description": "> TODO: description",
+  "author": "Hadi Halim <hdi_hlim@yahoo.com>",
+  "homepage": "",
+  "license": "MIT",
+  "main": "lib/index.ts",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "**/*"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "directory": "./lib"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "scripts": {
+    "precommit": "lint-staged",
+    "start": "tsc -w",
+    "tsc": "tsc",
+    "clean": "rm -r ./lib",
+    "prettier": "prettier --config .prettierrc  --write \"src/**/*.ts\"",
+    "lint": "eslint --fix --ext ts --ext tsx",
+    "test": "mocha -r ts-node/register  ./__tests__/**/*.test.ts",
+    "test:file": "mocha ",
+    "test:js": "mocha  ./__tests__/*.test.js",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
+    "coverage:js": "nyc -r lcov -e .ts -x \"*.test.js\" npm run test:js",
+    "coverage:file": "nyc -r lcov -e .ts -x \"*.test.js\" npm run test:file",
+    "argument": "echo \"The value of --foo is '${npm_config_foo}'\""
+
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.12",
+    "@types/mocha": "^8.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.1.1",
+    "@typescript-eslint/parser": "^4.1.1",
+    "awesome-typescript-loader": "^5.2.1",
+    "chai": "^4.2.0",
+    "eslint": "^7.9.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "lint-staged": "^10.4.0",
+    "mocha": "^8.1.3",
+    "nyc": "^15.1.0",
+    "prettier": "^2.1.2",
+    "ts-node": "^9.0.0"
+  }
+}
